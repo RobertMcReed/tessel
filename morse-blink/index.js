@@ -51,26 +51,27 @@ const morse = async (phrase) => {
       const letter = word[j]
       console.log('[Start Letter]', letters[i][j])
 
-      for (const part of letter) {
+      for (let k = 0; k < letter.length; k++) {
+        const part = letter[k]
         console.log('[Part]', part)
         console.log('[ON]')
-        tessel.led[2].on();
+        tessel.led[2].on()
 
         if (part === '.') await one()
         else await three()
         console.log('[OFF]')
-        tessel.led[2].off();
+        tessel.led[2].off()
 
-        // pause for one beat after each part
-        await one()
+        // pause for one beat after each part except the last
+        if (k !== letter.length - 1) await one()
       }
 
-      // pause for 3 beats after each letter
-      await three()
+      // pause for 3 beats after each letter except the last
+      if (j !== word.length - 1) await three()
     }
 
-    // pause for 7 beats after each word
-    await seven()
+    // pause for 7 beats after each word except the last
+    if (i !== parts.length - 1) await seven()
   }
 
   console.log(phrase)
