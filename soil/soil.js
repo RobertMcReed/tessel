@@ -2,15 +2,23 @@ const Tessel = require('tessel-io');
 const five = require('johnny-five');
 
 const { info } = require('./util');
-const SoilHandler = require('./soil-handler');
+const SoilHandler = require('./handler');
 
-const soilHandler = new SoilHandler();
+const soilHandler = new SoilHandler({
+  plantId: 10,
+  delayInSecs: 30,
+  normalize: true,
+  sensorMin: 450,
+  sensorMax: undefined,
+  threshold: undefined,
+});
+
 const board = new five.Board({
   io: new Tessel(),
 });
 
-
 info('Starting project...');
+soilHandler.reportConfig();
 
 board.on('ready', () => {
   info('Board ready...');
@@ -22,7 +30,7 @@ board.on('ready', () => {
   soilSensor.on('change', () => {
     const { value } = soilSensor;
 
-    // add to running avg for interval
-    soilHandler.setNewAvg(value);
+    // add to running avg and min/max
+    soilHandler.setIntervalValues(value);
   });
 });
