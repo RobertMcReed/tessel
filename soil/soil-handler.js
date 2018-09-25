@@ -51,7 +51,7 @@ class SoilHandler {
       this.markWet();
     }
 
-    info(lastAvg < this.threshold ? 'WET' : 'DRY');
+    info(lastAvg < this.threshold ? 'DRY' : 'WET');
     info(`Avg over ${this.delayInSecs} seconds:`, lastAvg);
   }
 
