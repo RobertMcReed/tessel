@@ -7,7 +7,7 @@ const PLANT_ID = 10;
 const API_URL = 'https://api.concurlabs.com/waterlog/plants';
 
 const main = async (plantId) => {
-  info(`Fetching configuration file for plant ${plantId}`);
+  info(`Fetching configuration file for plant ${plantId}...`);
 
   try {
     const res = await fetch(`${API_URL}/${plantId}`);
@@ -15,8 +15,9 @@ const main = async (plantId) => {
 
     soil.run(configuration);
   } catch (e) {
-    err('Failed to fetch configuration');
+    err('Failed to fetch configuration file.');
     err(e);
+    err('Exiting.');
   }
 };
 

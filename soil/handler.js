@@ -1,5 +1,7 @@
 const autoBind = require('auto-bind');
-const { info } = require('./util');
+const fetch = require('node-fetch');
+const { info, err } = require('./util');
+const { API_URL } = require('./constants');
 
 class SoilHandler {
   constructor({
@@ -34,6 +36,12 @@ class SoilHandler {
     autoBind(this);
   }
 
+  setState(obj) {
+    const update = (typeof obj === 'function' ? obj(this.state) : obj);
+
+    this.state = { ...this.state, ...update };
+  }
+
   reportConfig() {
     const configuration = {
       plantId: this.plantId,
@@ -45,6 +53,22 @@ class SoilHandler {
     };
 
     info('CONFIGURATION', JSON.stringify(configuration, null, 2));
+  }
+
+  async logReading(moisture) {
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({ moisture }),
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/plants/${this.plantId}/measurements`, options);
+
+      if (!res.ok || !res.status === 200) throw new Error(`Post failed with status code ${res.status}.`);
+    } catch (e) {
+      err('Failed to post measurement.');
+      err(e);
+    }
   }
 
   normalizeValue(value) {
@@ -62,12 +86,6 @@ class SoilHandler {
     normalized = Math.min(1, normalized);
 
     return normalized;
-  }
-
-  setState(obj) {
-    const update = (typeof obj === 'function' ? obj(this.state) : obj);
-
-    this.state = { ...this.state, ...update };
   }
 
   markStatus(status) {
@@ -108,6 +126,8 @@ class SoilHandler {
     info('Interval Avg:', avg);
     info('Interval Max:', max);
     info('Interval Min:', min);
+    info('Posting results to API.');
+    this.logReading(avg);
   }
 
   setIntervalValues(value) {
